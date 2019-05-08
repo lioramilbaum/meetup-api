@@ -18,10 +18,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     package_data=package_data,
-    url='https://github.com/pferate/meetup-api',
+    url='https://github.com/devopsloft/meetup-api',
     license='MIT',
-    author='Pat Ferate',
-    author_email='',
+    author='Liora Milbaum',
+    author_email='liora@lmb.co.il',
     description='Python API for Meetup',
     long_description=long_description,
     classifiers=[

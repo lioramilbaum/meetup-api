@@ -8,9 +8,12 @@ from time import sleep
 
 from meetup import exceptions
 
+from oauthlib.oauth2 import BackendApplicationClient
+from requests_oauthlib import OAuth2Session
 
-API_DEFAULT_URL = 'http://api.meetup.com/'
-API_KEY_ENV_NAME = 'MEETUP_API_KEY'
+API_DEFAULT_URL = 'https://api.meetup.com/'
+API_KEY_ENV_NAME = 'MEETUP_CONSUMER_KEY'
+API_SECRET_ENV_NAME = 'MEETUP_CONSUMER_SECRET'
 API_SPEC_DIR = os.path.join(os.path.dirname(__file__), 'api_specification')
 API_SERVICE_FILES = [
     ('v1', os.path.join(API_SPEC_DIR, 'meetup_v1_services.json')),
@@ -100,20 +103,21 @@ class Client(object):
     """
     Meetup API Client.
 
-    There are 3 options for defining the API key prior to making API calls:
+   There are 3 options for defining the Consumer key prior to making API calls:
 
-    1. Pass it as a parameter (api_key)
-    2. Stored as an environment variable, if parameter is not defined. (Default: MEETUP_API_KEY)
-    3. Define it after the object is created. (client.api_key = 'my_secret_api_key')
+    1. Pass it as a parameter (consumer_key)
+    2. Stored as an environment variable, if parameter is not defined. (Default: MEETUP_CONSUMER_KEY)
+    3. Define it after the object is created. (client.consumer_key = 'my_secret_consumer_key')
 
-    :param api_key:         Meetup API Key, from https://secure.meetup.com/meetup_api/key/
+    :param consumer_key:    Meetup Consumer Key, from https://secure.meetup.com/meetup_api/oauth_consumers/
     :param api_url:         Meetup API URL,  Keeping it flexible so that it can be generalized in the future.
     :param overlimit_wait:  Whether or not to wait and retry if over API request limit. (Default: True)
     """
 
-    def __init__(self, api_key=None, api_url=API_DEFAULT_URL, overlimit_wait=True):
+    def __init__(self, consumer_key=None, consumer_secret=None, api_url=API_DEFAULT_URL, overlimit_wait=True):
         self._api_url = api_url
-        self.api_key = api_key or os.environ.get(API_KEY_ENV_NAME)
+        self.consumer_key = consumer_key or os.environ.get(API_KEY_ENV_NAME)
+        self.consumer_secret = consumer_secret or os.environ.get(API_SECRET_ENV_NAME)
         self.overlimit_wait = overlimit_wait
         self.session = requests.Session()
         self.rate_limit = RateLimit()
@@ -130,14 +134,69 @@ class Client(object):
                 # API Method descriptions.  Used as a helpful reference.
                 self.services[service_name] = service_details
 
+        if not self.consumer_key:
+            if not self.comsumer_secret:
+                raise exceptions.ConsumerKeyError('Meetup Consumer key/secret not set')
+        else:
+            self.__auth__()
+
+    def __auth__(self):
+
+        client = BackendApplicationClient(client_id=self.consumer_key)
+        oauth = OAuth2Session(client=client)
+        token = oauth.fetch_token(
+            token_url='https://secure.meetup.com/oauth2/authorize',
+            client_id=self.consumer_key,
+            client_secret=self.consumer_secret
+        )
+
+        print(token)
+        # parameters = {}
+        # parameters['client_id'] = self.consumer_key
+        # parameters['response_type'] = 'token'
+        # parameters['redirect_uri'] = 'http://www.devopsloft.io'
+        # response = self.session.get(
+        #     url="https://secure.meetup.com/oauth2/authorize",
+        #     params=parameters,
+        #     allow_redirects=True
+        # )
+        #
+        # print("********")
+        # print(response.content)
+        # print("********")
+
+        # headers = {}
+        # headers['enctype'] = 'application/x-www-form-urlencoded'
+        # headers['Content-Type'] = 'application/json'
+        #
+        # parameters = {}
+        # parameters['client_id'] = self.consumer_key
+        # parameters['client_secret'] = self.consumer_secret
+        # parameters['grant_type'] = 'authorization_code'
+        # parameters['redirect_uri'] = 'http://www.devopsloft.io'
+        # # parameters['code'] = response.content
+        # response = self.session.get(
+        #     url="https://secure.meetup.com/oauth2/access",
+        #     data=parameters,
+        #     headers=headers
+        # )
+        # print("********")
+        # print(response.content)
+        # print("********")
+
+
+        # if response.status_code == 200:
+        #     print(response.json())
+        # else:
+        #     raise exceptions.ConsumerKeyError('Meetup Consumer key not set')
+        # print(response)
+
     def _call(self, service_name, parameters=None, **kwargs):
-        if not self.api_key:
-            raise exceptions.ApiKeyError('Meetup API key not set')
         if not parameters:
             parameters = {}
         if not isinstance(parameters, dict):
             raise exceptions.ApiParameterError('Parameters must be dict')
-        parameters['key'] = self.api_key
+        # parameters['key'] = self.consumer_key
         for key, value in six.iteritems(kwargs):
             parameters[key] = value
 

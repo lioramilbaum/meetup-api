@@ -14,17 +14,17 @@ def api_client():
 class TestApiKey:
     def test_environment_key(self, api_client):
         # Compare object API key with environment variable
-        assert api_client.api_key == os.environ.get(API_KEY_ENV_NAME)
+        assert api_client.consumer_key == os.environ.get(API_KEY_ENV_NAME)
 
     def test_empty_key(self, api_client):
         # Undefined API Key should fail
-        api_client.api_key = None
+        api_client.consumer_key = None
         with pytest.raises(exceptions.ApiKeyError):
             api_client.GetDashboard()
 
     def test_invalid_key(self, api_client):
         # Same with invalid API Key
-        api_client.api_key = 'foobarbaz'
+        api_client.consumer_key = 'foobarbaz'
         with pytest.raises(exceptions.HttpUnauthorized):
             api_client.GetDashboard()
 

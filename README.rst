@@ -27,27 +27,27 @@ Initialize Client and Execute API Call
 .. code-block:: python
 
     >>> import meetup.api
-    >>> client = meetup.api.Client('my_special_api_key_value')
-    >>> 
+    >>> client = meetup.api.Client('my_special_consumer_key_value')
+    >>>
     >>> type(client)
     <class 'meetup.api.Client'>
-    >>> 
+    >>>
     >>> group_info = client.GetGroup({'urlname': 'Meetup-API-Testing'})
-    >>> 
+    >>>
     >>> type(group_info)
     <class 'meetup.api.MeetupObject'>
-    >>> 
+    >>>
     >>> group_info.__dict__.keys()
     dict_keys(['who', 'join_mode', 'link', 'created', 'country', 'name', 'id', 'visibility',
                'state', 'urlname', 'city', 'lat', 'timezone', 'members', 'lon', 'description',
                'organizer', 'category', 'next_event', 'group_photo'])
-    >>> 
+    >>>
     >>> group_info.id
     1556336
-    >>> 
+    >>>
     >>> group_info.name
     'Meetup API Testing Sandbox'
-    >>> 
+    >>>
     >>> group_info.link
     'http://www.meetup.com/Meetup-API-Testing/'
 

@@ -10,9 +10,9 @@ class ClientException(MeetupBaseException):
     """
 
 
-class ApiKeyError(ClientException):
+class ConsumerKeyError(ClientException):
     """
-    There is a problem with the client API key.
+    There is a problem with the client Consumer key.
     """
 
 

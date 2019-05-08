@@ -23,7 +23,7 @@ Usage
 Initialize Client
 ~~~~~~~~~~~~~~~~~
 
-To initialize your Meetup API Client, you will need to import the Client class and create a Client object. Before making and API requests, you will need to assign your API key to the object.
+To initialize your Meetup API Client, you will need to import the Client class and create a Client object. Before making and API requests, you will need to assign your Consumer key to the object.
 
 Three ways to assign your API key (in order of precedence):
 
@@ -33,20 +33,20 @@ Three ways to assign your API key (in order of precedence):
 
     >>> import meetup.api
     >>> client = meetup.api.Client()
-    >>> client.api_key = 'my_special_api_key_value'
+    >>> client.consumer_key = 'my_special_consumer_key_value'
 
 2. Assign at initialization:
 
 .. code-block:: python
 
     >>> import meetup.api
-    >>> client = meetup.api.Client('my_special_api_key_value')
+    >>> client = meetup.api.Client('my_special_consumer_key_value')
 
 3. Retrieved from environment variable:
 
 .. code-block:: bash
 
-    $ export MEETUP_API_KEY=my_special_api_key_value
+    $ export MEETUP_CONSUMER_KEY=my_special_consumer_key_value
 
 .. code-block:: python
 
@@ -59,26 +59,26 @@ Execute API Calls
 .. code-block:: python
 
     >>> import meetup.api
-    >>> client = meetup.api.Client('my_special_api_key_value')  
+    >>> client = meetup.api.Client('my_special_consumer_key_value')
     >>> group_info = client.GetGroup({'urlname': 'Meetup-API-Testing'})
-    >>> 
+    >>>
     >>> type(client)
     <class 'meetup.api.Client'>
-    >>> 
+    >>>
     >>> type(group_info)
     <class 'meetup.api.MeetupObject'>
-    >>> 
+    >>>
     >>> group_info.__dict__.keys()
     dict_keys(['who', 'join_mode', 'link', 'created', 'country', 'name', 'id', 'visibility',
                'state', 'urlname', 'city', 'lat', 'timezone', 'members', 'lon', 'description',
                'organizer', 'category', 'next_event', 'group_photo'])
-    >>> 
+    >>>
     >>> group_info.id
     1556336
-    >>> 
+    >>>
     >>> group_info.name
     'Meetup API Testing Sandbox'
-    >>> 
+    >>>
     >>> group_info.link
     'http://www.meetup.com/Meetup-API-Testing/'
 
@@ -86,4 +86,3 @@ A full listing of implemented API methods can be found at
 :ref:`meetup_api`.
 
 .. _Python: https://www.python.org/
-
