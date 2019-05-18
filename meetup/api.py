@@ -9,8 +9,8 @@ from time import sleep
 from meetup import exceptions
 
 
-API_DEFAULT_URL = 'http://api.meetup.com/'
-API_KEY_ENV_NAME = 'MEETUP_API_KEY'
+API_DEFAULT_URL = 'https://api.meetup.com/'
+ACCESS_TOKEN_ENV_NAME = 'MEETUP_ACCESS_TOKEN'
 API_SPEC_DIR = os.path.join(os.path.dirname(__file__), 'api_specification')
 API_SERVICE_FILES = [
     ('v1', os.path.join(API_SPEC_DIR, 'meetup_v1_services.json')),
@@ -106,14 +106,14 @@ class Client(object):
     2. Stored as an environment variable, if parameter is not defined. (Default: MEETUP_API_KEY)
     3. Define it after the object is created. (client.api_key = 'my_secret_api_key')
 
-    :param api_key:         Meetup API Key, from https://secure.meetup.com/meetup_api/key/
+    :param access_token:    Meetup Access Token
     :param api_url:         Meetup API URL,  Keeping it flexible so that it can be generalized in the future.
     :param overlimit_wait:  Whether or not to wait and retry if over API request limit. (Default: True)
     """
 
-    def __init__(self, api_key=None, api_url=API_DEFAULT_URL, overlimit_wait=True):
+    def __init__(self, access_token=None, api_url=API_DEFAULT_URL, overlimit_wait=True):
         self._api_url = api_url
-        self.api_key = api_key or os.environ.get(API_KEY_ENV_NAME)
+        self.access_token = access_token or os.environ.get(ACCESS_TOKEN_ENV_NAME)
         self.overlimit_wait = overlimit_wait
         self.session = requests.Session()
         self.rate_limit = RateLimit()
@@ -131,13 +131,14 @@ class Client(object):
                 self.services[service_name] = service_details
 
     def _call(self, service_name, parameters=None, **kwargs):
-        if not self.api_key:
-            raise exceptions.ApiKeyError('Meetup API key not set')
+        if not self.access_token:
+            raise exceptions.ApiKeyError('Meetup Access Token is not set')
         if not parameters:
             parameters = {}
         if not isinstance(parameters, dict):
             raise exceptions.ApiParameterError('Parameters must be dict')
-        parameters['key'] = self.api_key
+        headers = {}
+        headers['Authorization'] = "Bearer " + self.access_token
         for key, value in six.iteritems(kwargs):
             parameters[key] = value
 
@@ -161,11 +162,11 @@ class Client(object):
         # This can probably be simplified by calling `requests.request` directly,
         # but more testing will need to be done on parameters.
         if request_http_method == 'GET':
-            response = self.session.get(request_url, params=parameters)
+            response = self.session.get(request_url, headers=headers, params=parameters)
         elif request_http_method == 'POST':
-            response = self.session.post(request_url, data=parameters)
+            response = self.session.post(request_url, headers=headers, data=parameters)
         elif request_http_method == 'DELETE':
-            response = self.session.delete(request_url, params=parameters)
+            response = self.session.delete(request_url, headers=headers, sparams=parameters)
         else:
             raise exceptions.HttpMethodError('HTTP Method not implemented: [{0}]'.format(request_http_method))
 
